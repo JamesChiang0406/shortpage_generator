@@ -1,10 +1,30 @@
 <div class="container mt-2">
   <form action="/" method="POST" class="d-flex flex-column align-items-center" style="width: 760px;">
+    {{#unless result}}
     <div class="form-group" style="width: 760px;">
       <input class="form-control form-control-lg bg-light border-0" type="text" placeholder="Input URL here"
-        name="originalURL" required>
+        name="originalUrl" required>
     </div>
 
     <button type="submit" class="btn btn-outline-primary font-weight-bold" style="width: 300px;">Shorten</button>
+    {{/unless}}
+
+    {{#if result}}
+    <div class="form-group" style="width: 760px;">
+      <h3>Success！Please use this link：</h3>
+      <a href="{{result.originUrl}}" id="link">{{result.shortUrl}}</a>
+    </div>
+    <button type="button" onclick="copy()" class="btn bg-success font-weight-bold text-white" data-toggle="tooltip"
+      data-placement="top" title="Copy link" id="copy_btn">Copy Link</button>
+    {{/if}}
   </form>
 </div>
+
+<script>
+  function copy() {
+    let copyText = document.getElementById('link')
+    window.getSelection().selectAllChildren(copyText)
+    document.execCommand("Copy")
+    document.getElementById('copy_btn').innerText = "Copied"
+  }
+</script>
