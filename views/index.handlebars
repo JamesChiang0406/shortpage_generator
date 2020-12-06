@@ -12,7 +12,7 @@
     {{#if result}}
     <div class="form-group" style="width: 760px;">
       <h3>Success！Please use this link：</h3>
-      <a href="{{result.originUrl}}" id="link">{{result.shortUrl}}</a>
+      <a href="{{result.originUrl}}" target="_blank" id="link">{{result.shortUrl}}</a>
     </div>
     <button type="button" onclick="copy()" class="btn bg-success font-weight-bold text-white" data-toggle="tooltip"
       data-placement="top" title="Copy link" id="copy_btn">Copy Link</button>
