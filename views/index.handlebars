@@ -1,12 +1,12 @@
 <div class="container mt-2">
   <form action="/" method="POST" class="d-flex flex-column align-items-center" style="width: 760px;">
     {{#unless result}}
-    <div class="form-group" style="width: 760px;">
-      <input class="form-control form-control-lg bg-light border-0" type="text" placeholder="Input URL here"
+    <div class="form-group" style="width: 620px;">
+      <input class="form-control form-control-sm bg-light border-0 mt-1" type="text" placeholder="Input URL here"
         name="originalUrl" required>
     </div>
 
-    <button type="submit" class="btn btn-outline-primary font-weight-bold" style="width: 300px;">Shorten</button>
+    <button type="submit" class="btn btn-outline-primary font-weight-bold" style="width: 150px;">Shorten</button>
     {{/unless}}
 
     {{#if result}}
