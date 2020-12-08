@@ -13,34 +13,24 @@ router.post('/', (req, res) => {
   const originUrl = req.body.originalUrl
 
   // 尋找資料庫中是否存在輸入的網站
-  Shortpage.find({ originUrl: originUrl })
+  Shortpage.find({ $or: [{ originUrl: originUrl }, { shortUrl: originUrl }] })
     .lean()
     .then(results => {
       if (results.length === 0) {
-        let shortUrl = `${req.protocol}://${req.headers.host}/${randomGenerator()}`
+        let shortUrl
+        do {
+          shortUrl = `${req.protocol}://${req.headers.host}/${randomGenerator()}`
+        } while (checkDatabase(shortUrl));
 
-        Shortpage.find()
-          .lean()
-          .then(pages => {
-            // 確定資料庫中不存在相同的短網址
-            pages.forEach(page => {
-              if (page.shortUrl === shortUrl) {
-                shortUrl = `${req.protocol}://${req.headers.host}/${randomGenerator()}`
-              }
-            })
-
-            const newPage = new Shortpage({
-              originUrl: originUrl,
-              shortUrl: shortUrl
-            })
-            return newPage.save()
-              .then(() => {
-                Shortpage.find({ originUrl: originUrl })
-                  .lean()
-                  .then(results => res.render('index', { result: results[0] }))
-                  .catch(error => console.log(error))
-              })
+        return Shortpage.create({
+          originUrl: originUrl,
+          shortUrl: shortUrl
+        })
+          .then(() => {
+            const result = { originUrl, shortUrl }
+            res.render('index', { result })
           })
+          .catch(error => console.log(error))
       } else {
         res.render('index', { result: results[0] })
       }
@@ -50,11 +40,13 @@ router.post('/', (req, res) => {
 
 // 導向原本網址
 router.get('/:urlTail', (req, res) => {
-  const shortUrl = `${req.protocol}://${req.headers.host}/${req.params.urlTail}`
+  const shortPageUrl = `${req.protocol}://${req.headers.host}/${req.params.urlTail}`
 
-  Shortpage.find({ shortUrl: shortUrl })
+  Shortpage.find({ shortUrl: shortPageUrl })
     .lean()
-    .then(result => res.redirect(`${result[0].originUrl}`))
+    .then(result => {
+      res.redirect(`${result[0].originUrl}`)
+    })
     .catch(error => console.log(error))
 })
 
@@ -74,4 +66,17 @@ function randomGenerator() {
   }
 
   return urlText
+}
+
+function checkDatabase(shortUrl) {
+  Shortpage.find()
+    .lean()
+    .then(results => {
+      results.forEach(result => {
+        if (result.shortUrl === shortUrl) {
+          return true
+        }
+      })
+    })
+    .catch(error => console.log(error))
 }
