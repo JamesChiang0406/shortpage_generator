@@ -11,17 +11,13 @@ router.get('/', (req, res) => {
 // 提交原網址後的處理
 router.post('/', (req, res) => {
   const originUrl = req.body.originalUrl
+  let shortUrl = `${req.protocol}://${req.headers.host}/${randomGenerator()}`
 
   // 尋找資料庫中是否存在輸入的網站
-  Shortpage.find({ $or: [{ originUrl: originUrl }, { shortUrl: originUrl }] })
+  Shortpage.find({ $or: [{ originUrl: originUrl }, { shortUrl: { $in: [originUrl, shortUrl] } }] })
     .lean()
     .then(results => {
       if (results.length === 0) {
-        let shortUrl
-        do {
-          shortUrl = `${req.protocol}://${req.headers.host}/${randomGenerator()}`
-        } while (checkDatabase(shortUrl));
-
         return Shortpage.create({
           originUrl: originUrl,
           shortUrl: shortUrl
@@ -66,17 +62,4 @@ function randomGenerator() {
   }
 
   return urlText
-}
-
-function checkDatabase(shortUrl) {
-  Shortpage.find()
-    .lean()
-    .then(results => {
-      results.forEach(result => {
-        if (result.shortUrl === shortUrl) {
-          return true
-        }
-      })
-    })
-    .catch(error => console.log(error))
 }
